@@ -1,8 +1,6 @@
 FROM golang:latest
 MAINTAINER Michele Bertasi
 
-ADD fs/ /
-
 # install pagkages
 RUN apt-get update                                                      && \
     apt-get install -y ncurses-dev libtolua-dev exuberant-ctags gdb git    \
@@ -44,20 +42,25 @@ RUN go get golang.org/x/tools/cmd/godoc                                 && \
 # cleanup
     rm -rf /go/src/* /go/pkg
 
-# install vim plugins
-RUN curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim && \
-    git clone https://github.com/Valloric/YouCompleteMe.git ~/.vim/plugged/YouCompleteMe && \
-    cd ~/.vim/plugged/YouCompleteMe                                     && \
-    git submodule update --init --recursive                             && \
-    ./install.py --clangd-completer --gocode-completer                  && \
-    vim +PlugInstall +qall
-
 # add dev user
+WORKDIR /home/dev
 RUN adduser dev --disabled-password --gecos ""                          && \
     echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers     && \
-    chown -R dev:dev /home/dev /go
+    chown -R dev:dev /home/dev /go                                      && \
+    git clone https://github.com/Hookey/dotfiles                        && \
+    mv ./dotfiles/* ./                                                  && \
+    rm -rf ./dotfiles ./.git
 
 USER dev
 ENV HOME /home/dev
+
+# install vim plugins
+RUN curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim && \
+    vim +PlugInstall +qall
+
+# complete YCM installation
+RUN cd ~/.vim/plugged/YouCompleteMe                                     && \
+    git submodule update --init --recursive                             && \
+    ./install.py --clangd-completer --gocode-completer
 
