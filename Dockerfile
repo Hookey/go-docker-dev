@@ -5,7 +5,8 @@ ADD fs/ /
 
 # install pagkages
 RUN apt-get update                                                      && \
-    apt-get install -y ncurses-dev libtolua-dev exuberant-ctags gdb     && \
+    apt-get install -y ncurses-dev libtolua-dev exuberant-ctags gdb git    \
+        python3 python3-dev cmake                                       && \
     ln -s /usr/include/lua5.2/ /usr/include/lua                         && \
     ln -s /usr/lib/x86_64-linux-gnu/liblua5.2.so /usr/lib/liblua.so     && \
 # cleanup
@@ -16,8 +17,13 @@ RUN cd /tmp                                                             && \
     git clone --depth 1 https://github.com/vim/vim.git                  && \
     cd vim                                                              && \
     ./configure --with-features=huge --enable-luainterp                    \
-        --enable-gui=no --without-x --prefix=/usr                       && \
-    make VIMRUNTIMEDIR=/usr/share/vim/vim82                             && \
+        --enable-gui=no --without-x --prefix=/usr                          \
+        --enable-luainterp=yes --enable-mzschemeinterp                     \
+        --enable-perlinterp=yes --enable-python3interp=yes                 \
+        --enable-tclinterp=yes --enable-rubyinterp=yes --enable-cscope     \
+        --enable-terminal --enable-autoservername --enable-multibyte       \
+        --enable-xim --enable-fontset --with-python3-command=python3    && \
+    make -j4 VIMRUNTIMEDIR=/usr/share/vim/vim82                         && \
     make install                                                        && \
 # cleanup
     rm -rf /tmp/* /var/tmp/*
@@ -38,6 +44,15 @@ RUN go get golang.org/x/tools/cmd/godoc                                 && \
 # cleanup
     rm -rf /go/src/* /go/pkg
 
+# install vim plugins
+RUN curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim && \
+    git clone https://github.com/Valloric/YouCompleteMe.git ~/.vim/plugged/YouCompleteMe && \
+    cd ~/.vim/plugged/YouCompleteMe                                     && \
+    git submodule update --init --recursive                             && \
+    ./install.py --clangd-completer --gocode-completer                  && \
+    vim +PlugInstall +qall
+
 # add dev user
 RUN adduser dev --disabled-password --gecos ""                          && \
     echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers     && \
@@ -46,7 +61,3 @@ RUN adduser dev --disabled-password --gecos ""                          && \
 USER dev
 ENV HOME /home/dev
 
-# install vim plugins
-RUN curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim && \
-    vim +PlugInstall +qall
