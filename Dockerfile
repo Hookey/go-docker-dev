@@ -27,7 +27,9 @@ RUN cd /tmp                                                             && \
     rm -rf /tmp/* /var/tmp/*
 
 # get go tools
-RUN go get golang.org/x/tools/cmd/godoc                                 && \
+RUN go env -w GO111MODULE=on                                            && \
+    go get golang.org/x/tools/gopls@latest                              && \
+    go get golang.org/x/tools/cmd/godoc                                 && \
     go get github.com/nsf/gocode                                        && \
     go get golang.org/x/tools/cmd/goimports                             && \
     go get github.com/rogpeppe/godef                                    && \
@@ -37,30 +39,24 @@ RUN go get golang.org/x/tools/cmd/godoc                                 && \
     go get github.com/jstemmer/gotags                                   && \
     go get github.com/tools/godep                                       && \
     go get github.com/go-delve/delve/cmd/dlv                            && \
-    GO111MODULE=on go get golang.org/x/tools/gopls@latest               && \
     mv /go/bin/* /usr/local/go/bin                                      && \
 # cleanup
     rm -rf /go/src/* /go/pkg
 
-# add dev user
-WORKDIR /home/dev
-RUN adduser dev --disabled-password --gecos ""                          && \
+# add dev user and dotfiles
+RUN git clone https://github.com/Hookey/dotfiles.git /home/dev          && \
+    rm -rf /home/dev/.git                                               && \
+    adduser dev --disabled-password --gecos ""                          && \
     echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers     && \
-    chown -R dev:dev /home/dev /go                                      && \
-    git clone https://github.com/Hookey/dotfiles                        && \
-    mv ./dotfiles/* ./                                                  && \
-    rm -rf ./dotfiles ./.git
+    chown -R dev:dev /home/dev /go
 
 USER dev
 ENV HOME /home/dev
 
 # install vim plugins
-RUN curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+RUN curl -fLo ~/.vim/autoload/plug.vim --create-dirs                       \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim && \
-    vim +PlugInstall +qall
-
-# complete YCM installation
-RUN cd ~/.vim/plugged/YouCompleteMe                                     && \
-    git submodule update --init --recursive                             && \
-    ./install.py --clangd-completer --gocode-completer
+    vim +PlugInstall +qall                                              && \ 
+    cd ~/.vim/plugged/YouCompleteMe                                     && \
+    ./install.py --clangd-completer
 
