@@ -32,22 +32,22 @@ RUN cd /tmp                                                             && \
     rm -rf /tmp/* /var/tmp/*
 
 # get go tools
-RUN go env -w GO111MODULE=on                                            && \
-    go install golang.org/x/tools/gopls@latest                          && \
-    go install golang.org/x/tools/cmd/godoc                             && \
-    go install github.com/nsf/gocode                                    && \
-    go install golang.org/x/tools/cmd/goimports                         && \
-    go install golang.org/x/tools/cmd/guru                              && \
-    go install github.com/golangci/golangci-lint/cmd/golangci-lint      && \
-    go install github.com/davidrjenni/reftools/cmd/fillstruct           && \
-    go install github.com/rogpeppe/godef                                && \
-    go install golang.org/x/tools/cmd/gorename                          && \
-    go install golang.org/x/lint/golint                                 && \
-    go install github.com/kisielk/errcheck                              && \
-    go install github.com/jstemmer/gotags                               && \
-    go install github.com/tools/godep                                   && \
-    go install github.com/go-delve/delve/cmd/dlv                        && \
-    mv /go/bin/* /usr/local/go/bin                                      && \
+RUN go env -w GO111MODULE=on                                            	   && \
+    go install golang.org/x/tools/gopls@latest                          	   && \
+    go install golang.org/x/tools/cmd/godoc@latest                  		   && \
+    go install github.com/nsf/gocode@latest                                    && \
+    go install golang.org/x/tools/cmd/goimports@latest                         && \
+    go install golang.org/x/tools/cmd/guru@latest                              && \
+    go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest      && \
+    go install github.com/davidrjenni/reftools/cmd/fillstruct@latest           && \
+    go install github.com/rogpeppe/godef@latest                                && \
+    go install golang.org/x/tools/cmd/gorename@latest                          && \
+    go install golang.org/x/lint/golint@latest                                 && \
+    go install github.com/kisielk/errcheck@latest                              && \
+    go install github.com/jstemmer/gotags@latest                               && \
+    go install github.com/tools/godep@latest                                   && \
+    go install github.com/go-delve/delve/cmd/dlv@latest                        && \
+    mv /go/bin/* /usr/local/go/bin                                      	   && \
 # cleanup
     rm -rf /go/src/* /go/pkg
 
