@@ -1,14 +1,19 @@
 FROM golang:latest
-MAINTAINER Michele Bertasi
 
 # install pagkages
 RUN apt-get update                                                      && \
     apt-get install -y ncurses-dev libtolua-dev exuberant-ctags gdb git    \
-        python3 python3-dev cmake                                       && \
+        python3 python3-dev                                             && \
     ln -s /usr/include/lua5.2/ /usr/include/lua                         && \
     ln -s /usr/lib/x86_64-linux-gnu/liblua5.2.so /usr/lib/liblua.so     && \
 # cleanup
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN wget https://bootstrap.pypa.io/get-pip.py && \
+    python3 get-pip.py && \
+    pip3 install --upgrade pip && \
+    pip3 install cmake
+
 
 # build and install vim
 RUN cd /tmp                                                             && \
@@ -28,20 +33,20 @@ RUN cd /tmp                                                             && \
 
 # get go tools
 RUN go env -w GO111MODULE=on                                            && \
-    go get golang.org/x/tools/gopls@latest                              && \
-    go get golang.org/x/tools/cmd/godoc                                 && \
-    go get github.com/nsf/gocode                                        && \
-    go get golang.org/x/tools/cmd/goimports                             && \
-    go get golang.org/x/tools/cmd/guru                                  && \
-    go get github.com/golangci/golangci-lint/cmd/golangci-lint          && \
-    go get github.com/davidrjenni/reftools/cmd/fillstruct               && \
-    go get github.com/rogpeppe/godef                                    && \
-    go get golang.org/x/tools/cmd/gorename                              && \
-    go get golang.org/x/lint/golint                                     && \
-    go get github.com/kisielk/errcheck                                  && \
-    go get github.com/jstemmer/gotags                                   && \
-    go get github.com/tools/godep                                       && \
-    go get github.com/go-delve/delve/cmd/dlv                            && \
+    go install golang.org/x/tools/gopls@latest                          && \
+    go install golang.org/x/tools/cmd/godoc                             && \
+    go install github.com/nsf/gocode                                    && \
+    go install golang.org/x/tools/cmd/goimports                         && \
+    go install golang.org/x/tools/cmd/guru                              && \
+    go install github.com/golangci/golangci-lint/cmd/golangci-lint      && \
+    go install github.com/davidrjenni/reftools/cmd/fillstruct           && \
+    go install github.com/rogpeppe/godef                                && \
+    go install golang.org/x/tools/cmd/gorename                          && \
+    go install golang.org/x/lint/golint                                 && \
+    go install github.com/kisielk/errcheck                              && \
+    go install github.com/jstemmer/gotags                               && \
+    go install github.com/tools/godep                                   && \
+    go install github.com/go-delve/delve/cmd/dlv                        && \
     mv /go/bin/* /usr/local/go/bin                                      && \
 # cleanup
     rm -rf /go/src/* /go/pkg
@@ -62,6 +67,6 @@ RUN curl -fLo ~/.vim/autoload/plug.vim --create-dirs                       \
     vim +PlugInstall +qall
 
 # complete vim-go, ycm
-RUN vim -c GoInstallBinaries -c 'qa!'                                   && \ 
-    cd ~/.vim/plugged/YouCompleteMe                                     && \
+RUN vim -c GoInstallBinaries -c 'qa!'
+RUN cd ~/.vim/plugged/YouCompleteMe                                     && \
     ./install.py --clangd-completer
