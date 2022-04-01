@@ -3,7 +3,7 @@ FROM golang:latest
 # install pagkages
 RUN apt-get update                                                      && \
     apt-get install -y ncurses-dev libtolua-dev exuberant-ctags gdb git    \
-        python3 python3-dev                                             && \
+        python3 python3-dev cscope                                      && \
     ln -s /usr/include/lua5.2/ /usr/include/lua                         && \
     ln -s /usr/lib/x86_64-linux-gnu/liblua5.2.so /usr/lib/liblua.so     && \
 # cleanup
@@ -32,9 +32,9 @@ RUN cd /tmp                                                             && \
     rm -rf /tmp/* /var/tmp/*
 
 # get go tools
-RUN go env -w GO111MODULE=on                                            	   && \
-    go install golang.org/x/tools/gopls@latest                          	   && \
-    go install golang.org/x/tools/cmd/godoc@latest                  		   && \
+RUN go env -w GO111MODULE=on                                                   && \
+    go install golang.org/x/tools/gopls@latest                                 && \
+    go install golang.org/x/tools/cmd/godoc@latest                             && \
     go install github.com/nsf/gocode@latest                                    && \
     go install golang.org/x/tools/cmd/goimports@latest                         && \
     go install golang.org/x/tools/cmd/guru@latest                              && \
@@ -47,7 +47,7 @@ RUN go env -w GO111MODULE=on                                            	   && \
     go install github.com/jstemmer/gotags@latest                               && \
     go install github.com/tools/godep@latest                                   && \
     go install github.com/go-delve/delve/cmd/dlv@latest                        && \
-    mv /go/bin/* /usr/local/go/bin                                      	   && \
+    mv /go/bin/* /usr/local/go/bin                                             && \
 # cleanup
     rm -rf /go/src/* /go/pkg
 
